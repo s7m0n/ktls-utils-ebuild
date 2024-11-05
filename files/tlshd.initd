@@ -1,0 +1,30 @@
+#!/sbin/openrc-run
+# Copyright 2024 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="tlshd daemon"
+# Description of the service
+description="Kernel TLS Helper Daemon (tlshd)"
+command="/usr/sbin/tlshd"
+command_args="-c /etc/tlshd.conf"
+#command_args="${tlshd_args}"
+pidfile="/run/tlshd.pid"
+
+# Directory for the service's configuration
+command_background="yes"
+start_stop_daemon_args="--background --make-pidfile --pidfile ${pidfile}"
+
+depend() {
+    need net
+    after firewall
+}
+
+start_pre() {
+    if [ ! -f /etc/tlshd.conf ]; then
+        eerror "Configuration file /etc/tlshd.conf does not exist."
+        return 1
+    fi
+    checkpath -f -m 0644 -o root:root ${pidfile}
+}
+
+
